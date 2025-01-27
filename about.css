@@ -1,0 +1,152 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+body {
+    color: #333;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: rgb(0, 0, 105);
+    color: #fff;
+}
+.logo {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+.nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.hero {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f4f4f4;
+}
+.hero h1 {
+    font-size: 2.5em;
+}
+.hero p {
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: #555;
+}
+
+.our-story {
+    padding: 40px 20px;
+    background: #fff;
+    text-align: center;
+}
+.our-story h2 {
+    color:rgb(0, 0, 105);
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+.our-story p {
+    color: #555;
+    margin: 0 auto;
+    max-width: 800px;
+    line-height: 1.6;
+}
+
+.mission-section {
+    padding: 40px 20px;
+    background: #e7f3e7;
+    text-align: center;
+}
+.mission-section h2 {
+    color: rgb(0, 0, 105);
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+.mission-section p {
+    color: #555;
+    margin: 0 auto;
+    max-width: 800px;
+    line-height: 1.6;
+}
+
+.team-section {
+    padding: 40px 20px;
+    background: #fff;
+    text-align: center;
+}
+.team-section h2 {
+    color:rgb(0, 0, 105);
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+.team-members {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+.team-member {
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+}
+.team-member img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+}
+.team-member h3 {
+    color: #333;
+    margin-bottom: 5px;
+}
+.team-member p {
+    color: #555;
+}
+
+.cta-section {
+    text-align: center;
+    padding: 50px 20px;
+    background: rgb(0, 0, 105);
+    color: #fff;
+}
+.cta-section h2 {
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+.cta-button {
+    background: #fff;
+    color: rgb(0, 0, 105);
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+.cta-button:hover {
+    background: #e7e7e7;
+}
+
+footer {
+    padding: 20px;
+    text-align: center;
+    background: #333;
+    color: #fff;
+}
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 10px 0;
+}
+.footer-links a {
+    color: #fff;
+    text-decoration: none;
+}

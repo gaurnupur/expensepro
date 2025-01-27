@@ -1,0 +1,78 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            height: 100vh;
+            background: url('images/ExpensePro.png') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+         
+        .loading-container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-left: 80px;
+            width: 450px;
+        }
+    
+        .loading-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+    
+        .loading-progress {
+            height: 25px;
+            background-color: rgb(0, 0, 105);
+            width: 0;
+            border-radius: 25px;
+            transition: width 0.1s;
+        }
+    
+        .loading-text {
+            font-size: 25px;
+            color: #333;
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="loading-container">
+        <div class="loading-text">Loading your Budget Mate...</div>
+
+        <div class="loading-bar">
+            <div class="loading-progress" id="loadingProgress"></div>
+        </div>
+        <div class="loading-text" id="percentageText"><b>0%</b></div>
+    </div>
+
+    <script>
+        let progress = 0;
+        const loadingProgress = document.getElementById('loadingProgress');
+        const percentageText = document.getElementById('percentageText');
+
+        const interval = setInterval(() => {
+            if (progress < 100) {
+                progress++;
+                loadingProgress.style.width = progress + '%';
+                percentageText.textContent = progress + '%';
+            } else {
+                clearInterval(interval);
+                
+                window.location.href = 'index.html'; 
+            }
+        }, 50);
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Signup - ExpensePro</title>
+    <link rel="stylesheet" href="login.css">
+    <script>
+        function toggleForm(formType) {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const loginButton = document.getElementById('login-btn');
+            const signupButton = document.getElementById('signup-btn');
+            
+            if (formType === 'login') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+                loginButton.classList.add('active');
+                signupButton.classList.remove('active');
+            } else {
+                signupForm.style.display = 'block';
+                loginForm.style.display = 'none';
+                signupButton.classList.add('active');
+                loginButton.classList.remove('active');
+            }
+        }
+    </script>
+</head>
+<body onload="toggleForm('login')">
+
+   
+    <header>
+        <div class="logo">ExpensePro</div>
+        <nav class="nav">
+            <a href="index.html">Home</a>
+            <a href="features.html">Features</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact Us</a>
+        </nav>
+    </header>
+
+   
+    <section class="hero">
+        <h1>Login / Signup</h1>
+        <p>Access your ExpensePro account or create a new one to start managing your expenses.</p>
+    </section>
+
+  
+    <section class="form-container">
+        <div class="form-box">
+            <div class="toggle-buttons">
+                <button id="login-btn" onclick="toggleForm('login')">Login</button>
+                <button id="signup-btn" onclick="toggleForm('signup')">Signup</button>
+            </div>
+
+          
+            <form id="login-form" style="display: none;">
+                <h2>Login</h2>
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <a href="forgot_password.html" class="forgot-password">Forgot Password?</a>
+                <br>
+                <button type="submit" class="form-button">Login</button>
+            </form>
+
+            
+            <form id="signup-form" style="display: none;">
+                <h2>Signup</h2>
+                <div class="form-group">
+                    <label for="signup-username">Username</label>
+                    <input type="text" id="signup-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" name="confirm-password" required>
+                </div>
+                <button type="submit" class="form-button">Signup</button>
+            </form>
+        </div>
+    </section>
+
+  
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="features.html">Features</a>
+            <a href="blog.html">Blog</a>
+            <a href="contact.html">Contact Us</a>
+            <a href="privacy.html">Privacy Policy</a>
+        </div>
+        <p>&copy; 2023 ExpensePro. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
