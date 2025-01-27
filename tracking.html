@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracking</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff; /* Light blue background */
+      color: #333; /* Text color */
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 20px auto;
+      background: #fff; /* White background */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff; /* Blue text */
+      margin-bottom: 20px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      color: #007bff;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border: 1px solid #ccc;
+    }
+
+    th {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .chart-container {
+      text-align: center;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #007bff; /* Blue button */
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      margin: 20px 0;
+    }
+
+    .btn:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Expense Tracking Details</h1>
+    
+    <!-- Category-wise expense summary -->
+    <div class="section">
+      <h2>Category-Wise Expenses</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rent</td>
+            <td>15,000</td>
+          </tr>
+          <tr>
+            <td>Groceries</td>
+            <td>5,000</td>
+          </tr>
+          <tr>
+            <td>Transportation</td>
+            <td>3,000</td>
+          </tr>
+          <tr>
+            <td>Utilities</td>
+            <td>2,000</td>
+          </tr>
+          <tr>
+            <td>Entertainment</td>
+            <td>1,500</td>
+          </tr>
+          <tr>
+            <td>Other</td>
+            <td>2,500</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- List of transactions -->
+    <div class="section">
+      <h2>Recent Transactions</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>01/01/2025</td>
+              <td>Monthly Rent</td>
+              <td>Rent</td>
+              <td>15,000</td>
+            </tr>
+            <tr>
+              <td>02/01/2025</td>
+              <td>Grocery Shopping</td>
+              <td>Groceries</td>
+              <td>3,000</td>
+            </tr>
+            <tr>
+              <td>03/01/2025</td>
+              <td>Metro Card Recharge</td>
+              <td>Transportation</td>
+              <td>1,500</td>
+            </tr>
+            <tr>
+              <td>04/01/2025</td>
+              <td>Electricity Bill</td>
+              <td>Utilities</td>
+              <td>1,000</td>
+            </tr>
+            <tr>
+              <td>05/01/2025</td>
+              <td>Movie Night</td>
+              <td>Entertainment</td>
+              <td>500</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Chart for graphical representation -->
+    <div class="section">
+      <h2>Spending Patterns</h2>
+      <div class="chart-container">
+        <p><strong>Graphical representation of expenses will be displayed here.</strong></p>
+        <!-- Placeholder for a chart (e.g., using Chart.js) -->
+      </div>
+    </div>
+
+    <!-- Back to Dashboard Button -->
+    <div class="section" style="text-align: center;">
+      <a href="dashboard.html" class="btn">Back to Dashboard</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Pro - Connect UPI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff; /* Light blue background */
+      color: #333; /* Text color */
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 50px auto;
+      background: #fff; /* White background */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff; /* Blue text */
+    }
+
+    p {
+      text-align: center;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .btn {
+      background: #007bff; /* Blue button */
+      color: #fff;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background: #0056b3; /* Darker blue on hover */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Connect Your UPI</h1>
+    <p>Enter your UPI details to connect with Expense Pro for seamless tracking.</p>
+    <form action="successfully.html" method="GET">
+      <label for="upiId">UPI ID:</label>
+      <input type="text" id="upiId" name="upiId" placeholder="e.g., username@bank" required>
+
+      <label for="mobileNumber">Mobile Number:</label>
+      <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" required>
+
+      <button type="submit" class="btn">Connect UPI</button>
+    </form>
+  </div>
+</body>
+</html>
