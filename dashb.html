@@ -146,6 +146,178 @@
       border-color: #007bff;
       outline: none;
     }
+
+    .expense-tables {
+      margin: 20px 0;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .expense-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .expense-table th,
+    .expense-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .expense-table th {
+      background-color: #f8f9fa;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .expense-table tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    .expense-table tr.recurring {
+      border-left: 3px solid #28a745;
+    }
+
+    .expense-table tr.rare {
+      border-left: 3px solid #dc3545;
+    }
+
+    .expense-table tfoot tr {
+      background-color: #f8f9fa;
+      font-weight: bold;
+    }
+
+    .expense-table tfoot td {
+      border-top: 2px solid #dee2e6;
+    }
+
+    .section h2 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .expense-summary {
+      margin: 20px 0;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .expense-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .expense-card {
+      padding: 15px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+    }
+
+    .expense-card h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.1em;
+    }
+
+    .expense-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background: white;
+      border-radius: 4px;
+      border-left: 4px solid #007bff;
+    }
+
+    .expense-item.high {
+      border-left-color: #dc3545;
+    }
+
+    .expense-item.medium {
+      border-left-color: #ffc107;
+    }
+
+    .expense-item.low {
+      border-left-color: #28a745;
+    }
+
+    .classification-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .classification-table th,
+    .classification-table td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .level-indicator {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .level-high {
+      background: #fde8e8;
+      color: #dc3545;
+    }
+
+    .level-medium {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .level-low {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    /* Add sorting styles */
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sortable:hover {
+      background-color: #e9ecef;
+    }
+
+    .sort-icon {
+      font-size: 0.8em;
+      margin-left: 5px;
+    }
+
+    .sort-asc .sort-icon::after {
+      content: '↑';
+    }
+
+    .sort-desc .sort-icon::after {
+      content: '↓';
+    }
+
+    /* Highlight sorted column */
+    .expense-table td:nth-child(4),
+    .expense-table th:nth-child(4) {
+      font-weight: bold;
+      color: #007bff;
+    }
   </style>
 </head>
 <body>
@@ -206,6 +378,132 @@
 
       // Load data when page loads
       document.addEventListener('DOMContentLoaded', loadDashboardData);
+
+      // Add sorting functionality
+      function sortExpenses(order = 'desc') {
+        const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+        
+        // Sort expenses by amount
+        expenses.sort((a, b) => {
+          const amountA = parseFloat(a.amount);
+          const amountB = parseFloat(b.amount);
+          return order === 'desc' ? amountB - amountA : amountA - amountB;
+        });
+
+        // Update localStorage with sorted expenses
+        localStorage.setItem('expenses', JSON.stringify(expenses));
+        
+        // Refresh the display
+        updateExpenseAnalysis();
+        updateExpenseTable();
+      }
+
+      // Add sorting controls to the table header
+      document.querySelector('.expense-table thead tr').innerHTML = `
+        <th>Category</th>
+        <th>Type</th>
+        <th>Frequency</th>
+        <th class="sortable" onclick="toggleSort(this)">
+          Amount (₹)
+          <span class="sort-icon">↕️</span>
+        </th>
+      `;
+
+      // Toggle sort order
+      let currentSortOrder = 'desc';
+      function toggleSort(header) {
+        currentSortOrder = currentSortOrder === 'desc' ? 'asc' : 'desc';
+        
+        // Update sort icon
+        header.classList.remove('sort-asc', 'sort-desc');
+        header.classList.add(currentSortOrder === 'desc' ? 'sort-desc' : 'sort-asc');
+        
+        // Sort expenses
+        sortExpenses(currentSortOrder);
+      }
+
+      // Modify the updateExpenseTable function to properly sort by amount
+      function updateExpenseTable() {
+        const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+        
+        // Define recurring categories
+        const recurringCategories = ['rent', 'groceries', 'utilities', 'transportation'];
+        
+        // Create expense objects with proper number conversion
+        const allExpenses = expenses.map(expense => ({
+          ...expense,
+          amount: parseFloat(expense.amount) // Ensure amount is a number
+        }));
+
+        // Sort all expenses by amount (min to max)
+        allExpenses.sort((a, b) => a.amount - b.amount);
+
+        // Separate into recurring and rare after sorting
+        const recurringExpenses = allExpenses.filter(expense => 
+          recurringCategories.includes(expense.category.toLowerCase())
+        );
+        
+        const rareExpenses = allExpenses.filter(expense => 
+          !recurringCategories.includes(expense.category.toLowerCase())
+        );
+
+        // Update table body
+        const tbody = document.querySelector('.expense-table tbody');
+        tbody.innerHTML = '';
+
+        // Add sorted expenses to table
+        [...recurringExpenses, ...rareExpenses].forEach(expense => {
+          tbody.innerHTML += `
+            <tr class="${recurringCategories.includes(expense.category.toLowerCase()) ? 'recurring' : 'rare'}">
+              <td>${expense.category.charAt(0).toUpperCase() + expense.category.slice(1)}</td>
+              <td>${recurringCategories.includes(expense.category.toLowerCase()) ? 'Recurring' : 'Rare'}</td>
+              <td>${getFrequency(expense.category)}</td>
+              <td>₹${expense.amount.toLocaleString('en-IN')}</td>
+            </tr>
+          `;
+        });
+
+        // Update totals
+        const recurringTotal = recurringExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+        const rareTotal = rareExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+
+        const tfoot = document.querySelector('.expense-table tfoot');
+        tfoot.innerHTML = `
+          <tr>
+            <td colspan="3"><strong>Total Recurring Expenses</strong></td>
+            <td><strong>₹${recurringTotal.toLocaleString('en-IN')}</strong></td>
+          </tr>
+          <tr>
+            <td colspan="3"><strong>Total Rare Expenses</strong></td>
+            <td><strong>₹${rareTotal.toLocaleString('en-IN')}</strong></td>
+          </tr>
+        `;
+
+        console.log('Sorted expenses:', allExpenses); // Debug log
+      }
+
+      // Helper function to determine frequency
+      function getFrequency(category) {
+        const frequencies = {
+          rent: 'Monthly',
+          groceries: 'Weekly',
+          utilities: 'Monthly',
+          transportation: 'Monthly'
+        };
+        return frequencies[category.toLowerCase()] || 'Monthly';
+      }
+
+      // Call this function when page loads and when expenses are updated
+      document.addEventListener('DOMContentLoaded', function() {
+        initializeDefaultExpenses();
+        updateExpenseTable();
+      });
+
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'expenses') {
+          updateExpenseTable();
+        }
+      });
     </script>
 
     <!-- Statistics Section -->
@@ -225,6 +523,113 @@
       <div class="stat-box">
         <h2>₹5,000</h2>
         <p>Remaining Budget</p>
+      </div>
+    </div>
+
+    <!-- Add this section after the stats boxes -->
+    <div class="expense-tables">
+      <div class="section">
+        <h2>Expense Breakdown</h2>
+        <table class="expense-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Frequency</th>
+              <th>Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Recurring Expenses -->
+            <tr class="recurring">
+              <td>Rent</td>
+              <td>Recurring</td>
+              <td>Monthly</td>
+              <td>15,000</td>
+            </tr>
+            <tr class="recurring">
+              <td>Groceries</td>
+              <td>Recurring</td>
+              <td>Weekly</td>
+              <td>5,000</td>
+            </tr>
+            <tr class="recurring">
+              <td>Utilities</td>
+              <td>Recurring</td>
+              <td>Monthly</td>
+              <td>2,000</td>
+            </tr>
+            <tr class="recurring">
+              <td>Transportation</td>
+              <td>Recurring</td>
+              <td>Monthly</td>
+              <td>3,000</td>
+            </tr>
+            
+            <!-- Rare/One-time Expenses -->
+            <tr class="rare">
+              <td>Electronics</td>
+              <td>Rare</td>
+              <td>One-time</td>
+              <td>25,000</td>
+            </tr>
+            <tr class="rare">
+              <td>Furniture</td>
+              <td>Rare</td>
+              <td>One-time</td>
+              <td>12,000</td>
+            </tr>
+            <tr class="rare">
+              <td>Medical</td>
+              <td>Rare</td>
+              <td>Occasional</td>
+              <td>5,000</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3"><strong>Total Recurring Expenses</strong></td>
+              <td><strong>25,000</strong></td>
+            </tr>
+            <tr>
+              <td colspan="3"><strong>Total Rare Expenses</strong></td>
+              <td><strong>42,000</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Add this section after the existing expense table -->
+    <div class="expense-summary">
+      <div class="section">
+        <h2>Expense Analysis</h2>
+        <div class="expense-cards">
+          <!-- Top 3 Highest Recurring Expenses -->
+          <div class="expense-card high">
+            <h3>Top Recurring Expenses</h3>
+            <div class="expense-list" id="topExpenses">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+          
+          <!-- Expense Classification -->
+          <div class="expense-card">
+            <h3>Expense Classification</h3>
+            <table class="classification-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Amount (₹)</th>
+                  <th>Level</th>
+                </tr>
+              </thead>
+              <tbody id="classificationBody">
+                <!-- Will be populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -272,20 +677,6 @@
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
       }
-    }
-
-    function sortExpenses(field) {
-      const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
-      expenses.sort((a, b) => {
-        if (field === 'date') {
-          return new Date(b.date) - new Date(a.date);
-        }
-        if (field === 'amount') {
-          return b.amount - a.amount;
-        }
-        return a[field].localeCompare(b[field]);
-      });
-      displayExpenses(expenses);
     }
 
     function filterExpenses(category) {
@@ -398,6 +789,140 @@
         document.querySelector('.stat-box:nth-child(4) h2').textContent = 
             '₹' + remaining.toLocaleString('en-IN');
     }
+
+    // Add this function to initialize sample data if none exists
+    function initializeDefaultExpenses() {
+      const existingExpenses = localStorage.getItem('expenses');
+      if (!existingExpenses) {
+        const defaultExpenses = [
+          {
+            category: 'rent',
+            amount: 15000,
+            date: '2024-03-01',
+            description: 'Monthly Rent',
+            type: 'recurring'
+          },
+          {
+            category: 'groceries',
+            amount: 5000,
+            date: '2024-03-01',
+            description: 'Monthly Groceries',
+            type: 'recurring'
+          },
+          {
+            category: 'utilities',
+            amount: 2000,
+            date: '2024-03-01',
+            description: 'Electricity and Water',
+            type: 'recurring'
+          },
+          {
+            category: 'transportation',
+            amount: 3000,
+            date: '2024-03-01',
+            description: 'Monthly Transport',
+            type: 'recurring'
+          }
+        ];
+        localStorage.setItem('expenses', JSON.stringify(defaultExpenses));
+      }
+    }
+
+    // Modify the updateExpenseAnalysis function
+    function updateExpenseAnalysis() {
+      const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+      console.log('Current expenses:', expenses); // Debug log
+      
+      if (expenses.length === 0) {
+        console.log('No expenses found, initializing defaults');
+        initializeDefaultExpenses();
+        return updateExpenseAnalysis(); // Retry with initialized data
+      }
+
+      // Get recurring expenses
+      const recurringCategories = ['rent', 'groceries', 'utilities', 'transportation'];
+      const recurringExpenses = expenses.filter(expense => 
+        recurringCategories.includes(expense.category.toLowerCase())
+      );
+
+      console.log('Recurring expenses:', recurringExpenses); // Debug log
+
+      // Sort recurring expenses by amount
+      recurringExpenses.sort((a, b) => b.amount - a.amount);
+
+      // Get top 3 recurring expenses
+      const topExpenses = recurringExpenses.slice(0, 3);
+      console.log('Top expenses:', topExpenses); // Debug log
+
+      const topExpensesHtml = topExpenses.map(expense => `
+        <div class="expense-item high">
+          <span>${expense.category.charAt(0).toUpperCase() + expense.category.slice(1)}</span>
+          <span>₹${expense.amount.toLocaleString('en-IN')}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('topExpenses').innerHTML = topExpensesHtml || 
+        '<div class="expense-item">No recurring expenses found</div>';
+
+      // Classify all expenses
+      const allExpenses = {};
+      expenses.forEach(expense => {
+        if (allExpenses[expense.category]) {
+          allExpenses[expense.category] += parseFloat(expense.amount);
+        } else {
+          allExpenses[expense.category] = parseFloat(expense.amount);
+        }
+      });
+
+      console.log('All expenses categorized:', allExpenses); // Debug log
+
+      // Calculate thresholds for classification
+      const amounts = Object.values(allExpenses);
+      const maxAmount = Math.max(...amounts);
+      const highThreshold = maxAmount * 0.7;
+      const mediumThreshold = maxAmount * 0.3;
+
+      // Create classification table
+      const classificationHtml = Object.entries(allExpenses)
+        .sort((a, b) => b[1] - a[1])
+        .map(([category, amount]) => {
+          let level, levelClass;
+          if (amount >= highThreshold) {
+            level = 'High';
+            levelClass = 'level-high';
+          } else if (amount >= mediumThreshold) {
+            level = 'Medium';
+            levelClass = 'level-medium';
+          } else {
+            level = 'Low';
+            levelClass = 'level-low';
+          }
+
+          return `
+            <tr>
+              <td>${category.charAt(0).toUpperCase() + category.slice(1)}</td>
+              <td>₹${amount.toLocaleString('en-IN')}</td>
+              <td><span class="level-indicator ${levelClass}">${level}</span></td>
+            </tr>
+          `;
+        }).join('');
+
+      document.getElementById('classificationBody').innerHTML = classificationHtml || 
+        '<tr><td colspan="3">No expenses found</td></tr>';
+    }
+
+    // Initialize and update on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeDefaultExpenses();
+      updateExpenseAnalysis();
+    });
+
+    // Update when storage changes
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'expenses') {
+        updateExpenseAnalysis();
+      }
+    });
   </script>
 </body>
 </html>
