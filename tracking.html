@@ -90,6 +90,41 @@
     .btn:hover {
       background: #0056b3;
     }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+
+    .form-control.error {
+      border-color: #dc3545;
+    }
+
+    .error-text {
+      color: #dc3545;
+      font-size: 12px;
+      display: none;
+    }
+
+    .btn {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
@@ -192,6 +227,67 @@
       </div>
     </div>
 
+    <!-- Add this form section -->
+    <div class="section">
+      <h2>Add New Expense</h2>
+      <form id="expenseForm" onsubmit="return validateAndSubmitExpense(event)">
+        <div class="form-group">
+          <label for="amount">Amount (₹)*</label>
+          <input 
+            type="number" 
+            id="amount" 
+            class="form-control" 
+            required 
+            min="0.01" 
+            step="0.01"
+            placeholder="Enter amount"
+          >
+          <small class="error-text" id="amountError"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="category">Category*</label>
+          <select id="category" class="form-control" required>
+            <option value="">Select a category</option>
+            <option value="rent">Rent</option>
+            <option value="groceries">Groceries</option>
+            <option value="transportation">Transportation</option>
+            <option value="utilities">Utilities</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="other">Other</option>
+          </select>
+          <small class="error-text" id="categoryError"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description*</label>
+          <input 
+            type="text" 
+            id="description" 
+            class="form-control" 
+            required
+            minlength="3"
+            maxlength="100"
+            placeholder="Enter description"
+          >
+          <small class="error-text" id="descriptionError"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="date">Date*</label>
+          <input 
+            type="date" 
+            id="date" 
+            class="form-control" 
+            required
+          >
+          <small class="error-text" id="dateError"></small>
+        </div>
+
+        <button type="submit" class="btn">Add Expense</button>
+      </form>
+    </div>
+
     <!-- Add Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -228,6 +324,205 @@
             }
           }
         }
+      });
+    </script>
+
+    <!-- Add validation script -->
+    <script>
+      function showError(elementId, message) {
+        const errorElement = document.getElementById(elementId + 'Error');
+        const inputElement = document.getElementById(elementId);
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        inputElement.classList.add('error');
+      }
+
+      function clearError(elementId) {
+        const errorElement = document.getElementById(elementId + 'Error');
+        const inputElement = document.getElementById(elementId);
+        errorElement.style.display = 'none';
+        inputElement.classList.remove('error');
+      }
+
+      function updateCategoryExpenses() {
+        const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+        
+        // Calculate total for each category
+        const categoryTotals = expenses.reduce((totals, expense) => {
+          totals[expense.category] = (totals[expense.category] || 0) + expense.amount;
+          return totals;
+        }, {});
+
+        // Update the category-wise expense table
+        const tbody = document.querySelector('.section table tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+
+        // Add rows for each category
+        Object.entries(categoryTotals).forEach(([category, amount]) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${category.charAt(0).toUpperCase() + category.slice(1)}</td>
+            <td>₹${amount.toLocaleString('en-IN')}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        // Update pie chart
+        updateExpenseChart(categoryTotals);
+      }
+
+      function updateExpenseChart(categoryTotals) {
+        const ctx = document.getElementById('expenseChart').getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (window.expenseChart) {
+          window.expenseChart.destroy();
+        }
+
+        // Create new chart
+        window.expenseChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(categoryTotals).map(cat => 
+              cat.charAt(0).toUpperCase() + cat.slice(1)
+            ),
+            datasets: [{
+              data: Object.values(categoryTotals),
+              backgroundColor: [
+                '#FF6384', // Pink
+                '#36A2EB', // Blue
+                '#FFCE56', // Yellow
+                '#4BC0C0', // Teal
+                '#9966FF', // Purple
+                '#FF9F40'  // Orange
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1.5,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Monthly Expenses Distribution'
+              },
+              legend: {
+                position: 'bottom'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.parsed || 0;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return `${label}: ₹${value.toLocaleString('en-IN')} (${percentage}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      function validateAndSubmitExpense(event) {
+        event.preventDefault();
+        let isValid = true;
+
+        // Get form values
+        const amount = document.getElementById('amount').value.trim();
+        const category = document.getElementById('category').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const date = document.getElementById('date').value;
+
+        // Clear previous errors
+        ['amount', 'category', 'description', 'date'].forEach(field => clearError(field));
+
+        // Amount validation
+        if (!amount) {
+          showError('amount', 'Amount is required');
+          isValid = false;
+        } else if (isNaN(amount) || parseFloat(amount) <= 0) {
+          showError('amount', 'Please enter a valid positive amount');
+          isValid = false;
+        } else if (parseFloat(amount) > 1000000) {
+          showError('amount', 'Amount cannot exceed ₹10,00,000');
+          isValid = false;
+        }
+
+        // Category validation
+        if (!category) {
+          showError('category', 'Please select a category');
+          isValid = false;
+        }
+
+        // Description validation
+        if (!description) {
+          showError('description', 'Description is required');
+          isValid = false;
+        } else if (description.length < 3) {
+          showError('description', 'Description must be at least 3 characters');
+          isValid = false;
+        } else if (description.length > 100) {
+          showError('description', 'Description cannot exceed 100 characters');
+          isValid = false;
+        }
+
+        // Date validation
+        if (!date) {
+          showError('date', 'Date is required');
+          isValid = false;
+        } else {
+          const selectedDate = new Date(date);
+          const today = new Date();
+          if (selectedDate > today) {
+            showError('date', 'Date cannot be in the future');
+            isValid = false;
+          }
+        }
+
+        // If form is valid, submit the data
+        if (isValid) {
+          try {
+            const expenseData = {
+              amount: parseFloat(amount),
+              category,
+              description,
+              date,
+              timestamp: new Date().toISOString()
+            };
+
+            // Get existing expenses from localStorage
+            const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+            
+            // Add new expense
+            expenses.push(expenseData);
+            
+            // Save back to localStorage
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+
+            // Update category-wise expenses and chart
+            updateCategoryExpenses();
+
+            // Show success message
+            showAlert('success', 'Expense added successfully!');
+            
+            // Reset form
+            document.getElementById('expenseForm').reset();
+            
+          } catch (error) {
+            showAlert('error', 'Failed to save expense. Please try again.');
+            console.error('Error saving expense:', error);
+          }
+        }
+
+        return false;
+      }
+
+      // Call updateCategoryExpenses when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        updateCategoryExpenses();
       });
     </script>
 
