@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expense Pro - Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       margin: 0;
@@ -93,11 +95,118 @@
     .btn:hover {
       background: #0056b3;
     }
+
+    /* Loading Spinner */
+    .loader {
+      display: none;
+      border: 3px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 3px solid #007bff;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Error/Success Messages */
+    .alert {
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Form Styles */
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .form-control:focus {
+      border-color: #007bff;
+      outline: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Expense Pro Dashboard</h1>
+
+    <!-- Add loader -->
+    <div class="loader" id="loader"></div>
+    
+    <!-- Add alert messages -->
+    <div id="successAlert" class="alert alert-success"></div>
+    <div id="errorAlert" class="alert alert-error"></div>
+
+    <script>
+      // Loading and error handling
+      function showLoader() {
+        document.getElementById('loader').style.display = 'block';
+      }
+
+      function hideLoader() {
+        document.getElementById('loader').style.display = 'none';
+      }
+
+      function showAlert(type, message) {
+        const alert = document.getElementById(type + 'Alert');
+        alert.textContent = message;
+        alert.style.display = 'block';
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 3000);
+      }
+
+      // Load dashboard data
+      async function loadDashboardData() {
+        try {
+          showLoader();
+          // Simulate API call
+          const response = await fetch('api/dashboard-data');
+          const data = await response.json();
+          updateDashboard(data);
+          showAlert('success', 'Data loaded successfully!');
+        } catch (error) {
+          showAlert('error', 'Failed to load dashboard data');
+          console.error('Error:', error);
+        } finally {
+          hideLoader();
+        }
+      }
+
+      // Update dashboard with data
+      function updateDashboard(data) {
+        // Update statistics
+        document.querySelector('.stat-box:nth-child(1) h2').textContent = '₹' + data.totalIncome;
+        document.querySelector('.stat-box:nth-child(2) h2').textContent = '₹' + data.totalExpenses;
+        document.querySelector('.stat-box:nth-child(3) h2').textContent = '₹' + data.totalSavings;
+        document.querySelector('.stat-box:nth-child(4) h2').textContent = '₹' + data.remainingBudget;
+      }
+
+      // Load data when page loads
+      document.addEventListener('DOMContentLoaded', loadDashboardData);
+    </script>
 
     <!-- Statistics Section -->
     <div class="stats">
@@ -122,7 +231,7 @@
     <!-- Graphical Insights Section -->
     <div class="chart-container">
       <h2>Spending Overview</h2>
-      <div class="chart-placeholder">[Graph Placeholder - Add Chart.js Here]</div>
+      <canvas id="expenseChart"></canvas>
     </div>
 
     <!-- Navigation Buttons -->
@@ -131,6 +240,114 @@
       <a href="add-income.html" class="btn">Add Income</a>
       <a href="detailed-report.html" class="btn">View Detailed Report</a>
     </div>
+
+    <!-- Export Data Buttons -->
+    <div class="buttons">
+      <button class="btn" onclick="exportData('csv')">Export Data as CSV</button>
+      <button class="btn" onclick="exportData('json')">Export Data as JSON</button>
+    </div>
   </div>
+
+  <script>
+    function exportData(format) {
+      const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+      
+      if (format === 'csv') {
+        const csvContent = "data:text/csv;charset=utf-8," 
+          + "Date,Category,Amount,Description\n"
+          + expenses.map(e => `${e.date},${e.category},${e.amount},${e.description}`).join("\n");
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "expenses.csv");
+        document.body.appendChild(link);
+        link.click();
+      } else if (format === 'json') {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(expenses));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "expenses.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+      }
+    }
+
+    function sortExpenses(field) {
+      const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+      expenses.sort((a, b) => {
+        if (field === 'date') {
+          return new Date(b.date) - new Date(a.date);
+        }
+        if (field === 'amount') {
+          return b.amount - a.amount;
+        }
+        return a[field].localeCompare(b[field]);
+      });
+      displayExpenses(expenses);
+    }
+
+    function filterExpenses(category) {
+      const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+      const filtered = category === 'all' ? 
+        expenses : 
+        expenses.filter(e => e.category === category);
+      displayExpenses(filtered);
+    }
+
+    // Initialize pie chart
+    function initializeChart() {
+        const ctx = document.getElementById('expenseChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Rent', 'Groceries', 'Transportation', 'Utilities', 'Entertainment', 'Other'],
+                datasets: [{
+                    data: [15000, 5000, 3000, 2000, 3000, 2000],
+                    backgroundColor: [
+                        '#FF6384',  // Pink
+                        '#36A2EB',  // Blue
+                        '#FFCE56',  // Yellow
+                        '#4BC0C0',  // Teal
+                        '#9966FF',  // Purple
+                        '#FF9F40'   // Orange
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Expense Distribution',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                return `${label}: ₹${value}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Call initializeChart when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeChart();
+    });
+  </script>
 </body>
 </html>

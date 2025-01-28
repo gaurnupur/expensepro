@@ -69,6 +69,9 @@
       background: #f9f9f9;
       border-radius: 10px;
       border: 1px solid #ccc;
+      width: 60%;
+      margin: 0 auto;
+      max-width: 500px;
     }
 
     .btn {
@@ -185,14 +188,52 @@
     <div class="section">
       <h2>Spending Patterns</h2>
       <div class="chart-container">
-        <p><strong>Graphical representation of expenses will be displayed here.</strong></p>
-        <!-- Placeholder for a chart (e.g., using Chart.js) -->
+        <canvas id="expenseChart"></canvas>
       </div>
     </div>
 
+    <!-- Add Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chart initialization script -->
+    <script>
+      const ctx = document.getElementById('expenseChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Rent', 'Groceries', 'Transportation', 'Utilities', 'Entertainment', 'Other'],
+          datasets: [{
+            data: [15000, 5000, 3000, 2000, 1500, 2500],
+            backgroundColor: [
+              '#FF6384',
+              '#36A2EB',
+              '#FFCE56',
+              '#4BC0C0',
+              '#9966FF',
+              '#FF9F40'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 1.5,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Monthly Expenses Distribution'
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    </script>
+
     <!-- Back to Dashboard Button -->
     <div class="section" style="text-align: center;">
-      <a href="dashboard.html" class="btn">Back to Dashboard</a>
+      <a href="dashb.html" class="btn">Back to Dashboard</a>
     </div>
   </div>
 </body>
