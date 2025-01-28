@@ -348,6 +348,56 @@
     document.addEventListener('DOMContentLoaded', function() {
         initializeChart();
     });
+
+    function exportDashboardData(format = 'csv') {
+        const stats = {
+            totalIncome: parseFloat(document.querySelector('.stat-box:nth-child(1) h2')
+                .textContent.replace('₹', '').replace(/,/g, '')),
+            totalExpenses: parseFloat(document.querySelector('.stat-box:nth-child(2) h2')
+                .textContent.replace('₹', '').replace(/,/g, '')),
+            totalSavings: parseFloat(document.querySelector('.stat-box:nth-child(3) h2')
+                .textContent.replace('₹', '').replace(/,/g, '')),
+            remainingBudget: parseFloat(document.querySelector('.stat-box:nth-child(4) h2')
+                .textContent.replace('₹', '').replace(/,/g, ''))
+        };
+        
+        if (format === 'csv') {
+            const csvContent = "data:text/csv;charset=utf-8,"
+                + "Category,Amount\n"
+                + Object.entries(stats).map(([key, value]) => `${key},${value}`).join("\n");
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', encodeURI(csvContent));
+            link.setAttribute('download', 'dashboard_summary.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+    }
+
+    // Add this function to sync with tracking.html
+    function syncWithTracking() {
+        const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+        const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        
+        // Update expense box
+        document.querySelector('.stat-box:nth-child(2) h2').textContent = 
+            '₹' + totalExpenses.toLocaleString('en-IN');
+            
+        // Recalculate savings and remaining budget
+        const totalIncome = parseFloat(document.querySelector('.stat-box:nth-child(1) h2')
+            .textContent.replace('₹', '').replace(/,/g, ''));
+        
+        const savings = totalIncome - totalExpenses;
+        document.querySelector('.stat-box:nth-child(3) h2').textContent = 
+            '₹' + savings.toLocaleString('en-IN');
+            
+        // Update remaining budget (assuming 20% of income is budget)
+        const budget = totalIncome * 0.2;
+        const remaining = budget - totalExpenses;
+        document.querySelector('.stat-box:nth-child(4) h2').textContent = 
+            '₹' + remaining.toLocaleString('en-IN');
+    }
   </script>
 </body>
 </html>
